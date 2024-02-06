@@ -1,0 +1,5 @@
+utils/__pycache__/
+*.png
+human-openprot-r1_6-refprots+altprots+isoforms-+uniprot2019_03_01.tsv
+human-openprot-r1_6-refprots+altprots+isoforms-+uniprot2019_03_01.fasta
+gencode.v10.pgene.parents.txt
