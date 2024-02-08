@@ -1,0 +1,10 @@
+Find multimap sites protocol
+----------------------------
+
+The reads are generated with a Fasta file from ensembl containing all transcripts sequences with the generate_reads_full_coverage.py
+
+The FastQ is generate from the reads all coverage fasta file generated with generate_dataset.py
+
+The generated reads FastQ created is aligned with Fasta Tools with an usual alignement protocol
+
+The numbers are calculated with the number_review.ipynb notebook by selecting every reads with a NH Flag > 1
