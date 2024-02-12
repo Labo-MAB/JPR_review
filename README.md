@@ -5,7 +5,7 @@ Note, that some heavy pickles are not in the repository (like OP16fasta_orig.pic
 
 _______________________________________________________________________________
 
-"reported_values.ipynb", "psdg_pg_ident.ipynb", "figure5.ipynb" were writen by Valeriia Vasylieva @vvsbiocode.
+"reported_values.ipynb", "psdg_pg_ident.ipynb", "figure5.ipynb", "gtex_analisys.R" were writen by Valeriia Vasylieva @vvsbiocode.
 
 "co_elution.ipynb" were writen by Valeriia Vasylieva and Francis Bourassa @Francis-B.
 
