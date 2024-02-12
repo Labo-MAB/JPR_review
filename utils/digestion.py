@@ -10,7 +10,6 @@ and check the uniqueness of peptide sequences.
 """
 # ------------------------------------------------------------------------------
 import re
-from collections import defaultdict
 import numpy as np
 # ------------------------------------------------------------------------------
 atom = {
@@ -54,18 +53,12 @@ class Digestion:
     """ Instantiate this class to perform in silico digestion and find unique
         peptide """
 
-# Default parameter.
-    _min_length = 7
-    _max_length = None
-    _max_miscleavages = 1
-    _max_mass = 4600  # in dalton
-
-    def __init__(self, protein_sequences, min_length=None, max_length=None, max_miscleavages=None, max_mass=None):
+    def __init__(self, protein_sequences, min_length=7, max_length=None, max_miscleavages=1, max_mass=4600):
         self.params = {
-                       'min_length': Digestion._min_length if min_length is None else min_length,
-                       'max_length': Digestion._max_length if max_length is None else max_length,
-                       'max_miscleavages': Digestion._max_miscleavages if max_miscleavages is None else max_miscleavages,
-                       'max_mass': Digestion._max_mass if max_mass is None else max_mass,
+                       'min_length': min_length,
+                       'max_length': max_length,
+                       'max_miscleavages': max_miscleavages,
+                       'max_mass': max_mass,
                        }
 
         self.proteins = protein_sequences
@@ -75,6 +68,7 @@ class Digestion:
 
 
     def get_peptides_list(self):
+        """" Return flat list of all peptides """
         return np.unique([pep for peptides in self.peptides.values() for pep in peptides])
 
 
