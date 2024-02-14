@@ -1,31 +1,137 @@
+#install.packages("stringr")
 library(stringr)
-setwd("C:/Users/Lera/Documents/JPR review/POU5F1B_vis")
-dat.gct <- read.delim(file="./gtex_median_tpm/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct", skip=2)
-#pou5f1
-pou5f1.fam<-dat.gct[grepl("POU5F1",dat.gct$Description),]
-pou5f1.fam_t<-data.frame(t(pou5f1.fam[,3:56]))
+dat.gene_tpm <- read.delim(file="./GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_tpm.gct", skip=2)
+dat.annotation<- read.delim(file="./GTEx_Analysis_v8_Annotations_SampleAttributesDS.txt")
+
+newcolnames<-c()
+for (n in colnames(dat.gene_tpm)[3:length(colnames(dat.gene_tpm))] ){
+  n1<-gsub("\\.","-",n)
+  newcolnames<-c(newcolnames,dat.annotation[which(dat.annotation$SAMPID==n1),"SMTSD"])
+}
+colnames(dat.gene_tpm)[3:length(colnames(dat.gene_tpm))]<-newcolnames
+
+#POU5F1
+pou5f1.fam<-dat.gene_tpm[grepl("POU5F1",dat.gene_tpm$Description),]
+pou5f1.fam_t<-data.frame(t(pou5f1.fam[,3:length(colnames(pou5f1.fam))]))
 colnames(pou5f1.fam_t)<-pou5f1.fam$Description
-# p2, b, 1, 3,4,7,6,5
-#boxplot(pou5f1.fam_t$POU5F1P2, pou5f1.fam_t$POU5F1B,pou5f1.fam_t$POU5F1, pou5f1.fam_t$POU5F1P3,
-#        pou5f1.fam_t$POU5F1P4,pou5f1.fam_t$POU5F1P7,pou5f1.fam_t$POU5F1P6, pou5f1.fam_t$POU5F1P5,
-#        ) 
-# pg, b, p3, p4, p6, p7, p2, p5
-boxplot(pou5f1.fam_t$POU5F1,pou5f1.fam_t$POU5F1B,pou5f1.fam_t$POU5F1P3,pou5f1.fam_t$POU5F1P4,
-        pou5f1.fam_t$POU5F1P6,pou5f1.fam_t$POU5F1P7,pou5f1.fam_t$POU5F1P2,pou5f1.fam_t$POU5F1P5, 
-        col="white",outline=FALSE, las=2,names=c("POU5F1","POU5F1B","POU5F1P3","POU5F1P4","POU5F1P6","POU5F1P7","POU5F1P2","POU5F1P5"))
+pou5f1.fam_t$tissue<-gsub("\\..*","",rownames(pou5f1.fam_t))
+#get median of each tissue per gene to select the most expressed
+gene_median_tissue<-list()
+for (gene in pou5f1.fam$Description){
+  median_list<-list()
+  for (tis in unique(pou5f1.fam_t$tissue)){
+    median_list[tis]<-median(pou5f1.fam_t[which(pou5f1.fam_t$tissue==tis),gene])
+  }
+  gene_median_tissue[gene]<-names(median_list[which.max(median_list)])
+}
+print(gene_median_tissue)
+#$POU5F1P4
+#[1] "Brain - Cerebellum"
+#
+#$POU5F1P7
+#[1] "Adipose - Subcutaneous"
+#
+#$POU5F1P6
+#[1] "Testis"
+#
+#$POU5F1
+#[1] "Kidney - Medulla"
+#
+#$POU5F1P2
+#[1] "Adipose - Subcutaneous"
+#
+#$POU5F1B
+#[1] "Cervix - Endocervix"
+#
+#$POU5F1P5
+#[1] "Skin - Not Sun Exposed (Suprapubic)"
+#
+#$POU5F1P3
+#[1] "Nerve - Tibial"
 
-#nanog
-nanog.fam<-dat.gct[grepl("NANOG",dat.gct$Description),]
-nanog.fam_t<-data.frame(t(nanog.fam[,3:56]))
+#do boxplots for each gene-tissue
+pou5f1.fam_t.tmp<-list()
+for (i in 1:length(gene_median_tissue)){
+  gene<-names(gene_median_tissue)[i]
+  tis<-gene_median_tissue[gene]
+  pou5f1.fam_t.tmp[[gene]]<-pou5f1.fam_t[which(pou5f1.fam_t$tissue==tis),gene]
+}
+boxplot(pou5f1.fam_t.tmp)
+boxplot(pou5f1.fam_t.tmp,outline=FALSE)
+#save
+saveRDS(pou5f1.fam_t.tmp, file = "pou5f1_fam_t_tmp.rds")
+
+#NANOG
+nanog.fam<-dat.gene_tpm[grepl("NANOG",dat.gene_tpm$Description),]
+nanog.fam_t<-data.frame(t(nanog.fam[,3:length(colnames(nanog.fam))]))
 colnames(nanog.fam_t)<-nanog.fam$Description
-nanog.fam_t_filt<-nanog.fam_t[,-which(str_detect(colnames(nanog.fam_t),"NANOGNB"))]
-#boxplot(nanog.fam_t_filt$NANOGP4, nanog.fam_t_filt$NANOGP7,nanog.fam_t_filt$NANOGP2,nanog.fam_t_filt$NANOGP3,
-#        nanog.fam_t_filt$NANOGP6,nanog.fam_t_filt$NANOG, nanog.fam_t_filt$NANOGP8,
-#        nanog.fam_t_filt$NANOGP5,nanog.fam_t_filt$NANOGP10, nanog.fam_t_filt$NANOGP9,
-#        nanog.fam_t_filt$NANOGP1,nanog.fam_t_filt$NANOGP11)
-# pg, p8, p6, p5, p3, p10, p2, p9, p7, p1, p4, p11
-boxplot(nanog.fam_t_filt$NANOG,nanog.fam_t_filt$NANOGP8,nanog.fam_t_filt$NANOGP6,nanog.fam_t_filt$NANOGP5,
-        nanog.fam_t_filt$NANOGP3,nanog.fam_t_filt$NANOGP10,nanog.fam_t_filt$NANOGP2,nanog.fam_t_filt$NANOGP9,
-        nanog.fam_t_filt$NANOGP7,nanog.fam_t_filt$NANOGP1,nanog.fam_t_filt$NANOGP4,nanog.fam_t_filt$NANOGP11,
-        col="white",outline=FALSE, las=2,names=c("NANOG","NANOGP8","NANOGP6","NANOGP5","NANOGP3","NANOGP10","NANOGP2","NANOGP9","NANOGP7","NANOGP1","NANOGP4","NANOGP11"))
+nanog.fam_t$tissue<-gsub("\\..*","",rownames(nanog.fam_t))
+#get median of each tissue per gene to select the most expressed
+gene_median_tissue<-list()
+for (gene in nanog.fam$Description){
+  median_list<-list()
+  for (tis in unique(nanog.fam_t$tissue)){
+    median_list[tis]<-median(nanog.fam_t[which(nanog.fam_t$tissue==tis),gene])
+  }
+  gene_median_tissue[gene]<-names(median_list[which.max(median_list)])
+}
+print(gene_median_tissue)
+#$NANOGNBP1
+#[1] "Adipose - Subcutaneous"
+#
+#$NANOGP2
+#[1] "Skin - Not Sun Exposed (Suprapubic)"
+#
+#$NANOGP3
+#[1] "Adipose - Subcutaneous"
+#
+#$NANOGP11
+#[1] "Brain - Cerebellum"
+#
+#$NANOGP4
+#[1] "Brain - Cerebellum"
+#
+#$NANOGP5
+#[1] "Brain - Cerebellum"
+#
+#$NANOGP6
+#[1] "Liver"
+#
+#$NANOGNB
+#[1] "Testis"
+#
+#$NANOG
+#[1] "Testis"
+#
+#$NANOGP1
+#[1] "Testis"
+#
+#$NANOGNBP2
+#[1] "Testis"
+#
+#$NANOGP7
+#[1] "Artery - Aorta"
+#
+#$NANOGP8
+#[1] "Testis"
+#
+#$NANOGP10
+#[1] "Adipose - Subcutaneous"
+#
+#$NANOGP9
+#[1] "Skin - Sun Exposed (Lower leg)"
+#
+#$NANOGNBP3
+#[1] "Brain - Nucleus accumbens (basal ganglia)"
 
+#do boxplots for each gene-tissue
+nanog.fam_t.tmp<-list()
+for (i in 1:length(gene_median_tissue)){
+  gene<-names(gene_median_tissue)[i]
+  tis<-gene_median_tissue[gene]
+  nanog.fam_t.tmp[[gene]]<-nanog.fam_t[which(nanog.fam_t$tissue==tis),gene]
+}
+boxplot(nanog.fam_t.tmp,las=2)
+boxplot(nanog.fam_t.tmp,outline=FALSE,las=2)
+#save
+saveRDS(nanog.fam_t.tmp, file = "nanog_fam_t_tmp.rds")
